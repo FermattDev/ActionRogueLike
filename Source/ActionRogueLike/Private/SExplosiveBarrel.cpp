@@ -14,6 +14,10 @@ ASExplosiveBarrel::ASExplosiveBarrel()
 	RootComponent = StaticMeshComponent;
 
 	RadialForceComponent = CreateDefaultSubobject<URadialForceComponent>("RadialForceComp");
+
+	RadialForceComponent->SetupAttachment(StaticMeshComponent);
+
+	StaticMeshComponent->OnComponentHit.AddDynamic(this, &ASExplosiveBarrel::Explode);
 }
 
 void ASExplosiveBarrel::Explode(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComponent, FVector NormalImpulse, const FHitResult& Hit)
@@ -26,8 +30,6 @@ void ASExplosiveBarrel::Explode(UPrimitiveComponent* HitComponent, AActor* Other
 void ASExplosiveBarrel::BeginPlay()
 {
 	Super::BeginPlay();
-
-	StaticMeshComponent->OnComponentHit.AddDynamic(this, &ASExplosiveBarrel::Explode);
 }
 
 // Called every frame
