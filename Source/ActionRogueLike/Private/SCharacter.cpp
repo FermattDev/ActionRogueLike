@@ -41,7 +41,6 @@ void ASCharacter::PrimaryAttack_TimeElapsed()
 void ASCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-	
 }
 
 void ASCharacter::MoveForward(float Value)
@@ -80,7 +79,6 @@ void ASCharacter::PrimaryInteract()
 void ASCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
 }
 
 // Called to bind functionality to input
