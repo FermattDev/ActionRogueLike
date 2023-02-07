@@ -16,14 +16,22 @@ ASExplosiveBarrel::ASExplosiveBarrel()
 	RadialForceComponent = CreateDefaultSubobject<URadialForceComponent>("RadialForceComp");
 
 	RadialForceComponent->SetupAttachment(StaticMeshComponent);
-
-	StaticMeshComponent->OnComponentHit.AddDynamic(this, &ASExplosiveBarrel::Explode);
 }
 
 void ASExplosiveBarrel::Explode(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComponent, FVector NormalImpulse, const FHitResult& Hit)
 {
-	UE_LOG(LogTemp, Warning, TEXT("Explode"));
+	UE_LOG(LogTemp, Warning, TEXT("Explode caused by: %s"), *GetNameSafe(OtherActor));
 	RadialForceComponent->FireImpulse();
+
+	FString CombinedString = FString::Printf(TEXT("Hit at location: %s"), *Hit.ImpactPoint.ToString());
+	DrawDebugString(GetWorld(), Hit.ImpactPoint, CombinedString, nullptr, FColor::Green, 2.0f, true);
+}
+
+void ASExplosiveBarrel::PostInitializeComponents()
+{
+	Super::PostInitializeComponents();
+
+	StaticMeshComponent->OnComponentHit.AddDynamic(this, &ASExplosiveBarrel::Explode);
 }
 
 // Called when the game starts or when spawned
