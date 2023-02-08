@@ -11,21 +11,12 @@ ASDashProjectile::ASDashProjectile()
 
 void ASDashProjectile::TriggerTeleportTime(UParticleSystemComponent* PSystem)
 {
-	if (TeleportTriggered)
-	{
-		return;
-	}
 	TeleportEffectComp->Activate();
 	GetWorldTimerManager().SetTimer(TimerHandle_Teleport, FTimerDelegate::CreateLambda([&] { TeleportPlayer(); }), 0.2f, false);
 }
 
-void ASDashProjectile::TriggerTeleportOverlap(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComponent, FVector NormalImpulse, const FHitResult& Hit)
+void ASDashProjectile::TriggerTeleportOverlap(UPrimitiveComponent* OnComponentBeginOverlap, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	if (TeleportTriggered)
-	{
-		return;
-	}
-	TeleportTriggered = true;
 	TeleportEffectComp->Activate();
 	GetWorldTimerManager().SetTimer(TimerHandle_Teleport, FTimerDelegate::CreateLambda([&] { TeleportPlayer(); }), 0.2f, false);
 }
@@ -43,7 +34,7 @@ void ASDashProjectile::TeleportPlayer()
 	{
 		return;
 	}
-	player->TeleportTo(GetActorLocation(), player->GetActorRotation(), false, true);
+	player->SetActorRelativeLocation(GetActorLocation());
 }
 
 void ASDashProjectile::PostInitializeComponents()
@@ -51,5 +42,5 @@ void ASDashProjectile::PostInitializeComponents()
 	Super::PostInitializeComponents();
 
 	EffectComp->OnSystemFinished.AddDynamic(this, &ASDashProjectile::TriggerTeleportTime);
-	SphereComp->OnComponentHit.AddDynamic(this, &ASDashProjectile::TriggerTeleportOverlap);
+	SphereComp->OnComponentBeginOverlap.AddDynamic(this, &ASDashProjectile::TriggerTeleportOverlap);
 }

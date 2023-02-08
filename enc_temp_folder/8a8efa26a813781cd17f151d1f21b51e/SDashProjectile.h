@@ -28,7 +28,7 @@ protected:
 	void TriggerTeleportTime(UParticleSystemComponent* PSystem);
 
 	UFUNCTION()
-	void TriggerTeleportOverlap(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComponent, FVector NormalImpulse, const FHitResult& Hit);
+	void TriggerTeleportOverlap(UPrimitiveComponent* OnComponentBeginOverlap, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
 	void TriggerTeleport();
 
@@ -36,7 +36,4 @@ protected:
 
 	// Called when the game starts or when spawned
 	virtual void PostInitializeComponents() override;
-
-private:
-	bool TeleportTriggered = false;
 };

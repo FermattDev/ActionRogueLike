@@ -1,9 +1,6 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "SProjectile.h"
-#include "Components/SphereComponent.h"
-#include "GameFramework/ProjectileMovementComponent.h"
-#include "Particles/ParticleSystemComponent.h"
 
 // Sets default values
 ASProjectile::ASProjectile()
