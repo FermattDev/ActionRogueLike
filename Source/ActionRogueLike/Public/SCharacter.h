@@ -6,6 +6,7 @@
 #include "GameFramework/Character.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Camera/CameraComponent.h"
+#include "SProjectile.h"
 #include "SCharacter.generated.h"
 
 class UCameraComponent;
@@ -24,14 +25,26 @@ public:
 protected:
 
 	UPROPERTY(EditAnywhere, Category = "Attack")
-	TSubclassOf<AActor> ProjectileClass;
+	TSubclassOf<ASProjectile> ProjectileClass;
+
+	UPROPERTY(EditAnywhere, Category = "Attack")
+	TSubclassOf<ASProjectile> SecondaryClass;
+
+	UPROPERTY(EditAnywhere, Category = "Attack")
+	TSubclassOf<ASProjectile> UltimateClass;
 
 	UPROPERTY(EditAnywhere, Category = "Attack")
 	UAnimMontage* AttackAnim;
 
+	UPROPERTY(EditAnywhere, Category = "Attack")
+	UAnimMontage* SecondaryAttackAnim;
+
+	UPROPERTY(EditAnywhere, Category = "Attack")
+	UAnimMontage* UltimateAttackAnim;
+
 	FTimerHandle TimerHandle_PrimaryAttack;
 
-	void PrimaryAttack_TimeElapsed();
+	void PrimaryAttack_TimeElapsed(TSubclassOf<ASProjectile> ProjectileSpawn, FName SocketLocation);
 
 	UPROPERTY(VisibleAnywhere)
 	USpringArmComponent* SpringArmComp;
@@ -50,6 +63,10 @@ protected:
 	void MoveRight(float Value);
 
 	void PrimaryAttack();
+
+	void SecondaryAttack();
+
+	void UltimateAttack();
 
 	void PrimaryInteract();
 

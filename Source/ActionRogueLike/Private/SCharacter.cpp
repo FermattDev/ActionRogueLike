@@ -25,17 +25,38 @@ ASCharacter::ASCharacter()
 	bUseControllerRotationYaw = false;
 }
 
-void ASCharacter::PrimaryAttack_TimeElapsed()
+void ASCharacter::PrimaryAttack_TimeElapsed(TSubclassOf<ASProjectile> ProjectileSpawn, FName SocketLocation)
 {
-	FVector HandLocation = GetMesh()->GetSocketLocation("Muzzle_01");
-
-	FTransform SpawnTM = FTransform(GetControlRotation(), HandLocation);
+	FVector HandLocation = GetMesh()->GetSocketLocation(SocketLocation);
 
 	FActorSpawnParameters SpawnParams;
 	SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 	SpawnParams.Instigator = this;
 
-	GetWorld()->SpawnActor<AActor>(ProjectileClass, SpawnTM, SpawnParams);
+	UWorld* MyWorld = GetWorld();
+	FHitResult Hit;
+
+	FVector Start = CameraComp->GetComponentLocation();
+	FRotator Rotation = CameraComp->GetComponentRotation();
+
+	FVector End = (Start + (Rotation.Vector()) * 5000);
+
+	MyWorld->LineTraceSingleByProfile(Hit, Start, End, "Projectile");
+
+	FVector HitPosition = Hit.TraceEnd;
+
+	if (Hit.IsValidBlockingHit())
+	{
+		HitPosition = Hit.ImpactPoint;
+
+		DrawDebugSphere(GetWorld(), Hit.ImpactPoint, 5.0f, 32, FColor::Blue, false, 2.0f);
+	}
+
+	FTransform SpawnTM = FTransform((HitPosition - HandLocation).Rotation(), HandLocation);
+
+	DrawDebugLine(GetWorld(), Start, End, FColor::Blue, false, 2.0f, 00, 2.0f);
+
+	ASProjectile* Projectile = MyWorld->SpawnActor<ASProjectile>(ProjectileSpawn, SpawnTM, SpawnParams);
 }
 
 // Called when the game starts or when spawned
@@ -68,12 +89,31 @@ void ASCharacter::PrimaryAttack()
 {
 	PlayAnimMontage(AttackAnim);
 
-	GetWorldTimerManager().SetTimer(TimerHandle_PrimaryAttack, this, &ASCharacter::PrimaryAttack_TimeElapsed, 0.2f);
+	GetWorldTimerManager().SetTimer(TimerHandle_PrimaryAttack, FTimerDelegate::CreateLambda([&] { PrimaryAttack_TimeElapsed(ProjectileClass, "Muzzle_01"); }), 0.2f, false);
+}
+
+void ASCharacter::SecondaryAttack()
+{
+	PlayAnimMontage(SecondaryAttackAnim);
+
+	GetWorldTimerManager().SetTimer(TimerHandle_PrimaryAttack, FTimerDelegate::CreateLambda([&] { PrimaryAttack_TimeElapsed(SecondaryClass, "Muzzle_01"); }), 0.2f, false);
+}
+
+void ASCharacter::UltimateAttack()
+{
+	PlayAnimMontage(UltimateAttackAnim);
+
+	GetWorldTimerManager().SetTimer(TimerHandle_PrimaryAttack, FTimerDelegate::CreateLambda([&] { PrimaryAttack_TimeElapsed(UltimateClass, "Muzzle_01"); }), 0.2f, false);
 }
 
 void ASCharacter::PrimaryInteract()
 {
-	InteractionComp->PrimaryInteract();
+	FVector location = CameraComp->GetComponentLocation();
+	FRotator rotation = CameraComp->GetComponentRotation();
+
+	UE_LOG(LogTemp, Warning, TEXT("Location: %s, Rotation: %s"), *location.ToString(), *rotation.ToString());
+
+	InteractionComp->PrimaryInteract(location, rotation);
 }
 
 // Called every frame
@@ -94,6 +134,10 @@ void ASCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 	PlayerInputComponent->BindAxis("LookUp", this, &APawn::AddControllerPitchInput);
 
 	PlayerInputComponent->BindAction("PrimaryAttack", IE_Pressed, this, &ASCharacter::PrimaryAttack);
+	PlayerInputComponent->BindAction("SecondaryAttack", IE_Pressed, this, &ASCharacter::SecondaryAttack);
+	PlayerInputComponent->BindAction("UltimateAttack", IE_Pressed, this, &ASCharacter::UltimateAttack);
+
+
 	PlayerInputComponent->BindAction("PrimaryInteract", IE_Pressed, this, &ASCharacter::PrimaryInteract);
 
 	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ASCharacter::Jump);
