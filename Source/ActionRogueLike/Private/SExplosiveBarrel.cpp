@@ -1,7 +1,8 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-
 #include "SExplosiveBarrel.h"
+#include "SAttributeComponent.h"
+
 
 // Sets default values
 ASExplosiveBarrel::ASExplosiveBarrel()
@@ -25,6 +26,16 @@ void ASExplosiveBarrel::Explode(UPrimitiveComponent* HitComponent, AActor* Other
 
 	FString CombinedString = FString::Printf(TEXT("Hit at location: %s"), *Hit.ImpactPoint.ToString());
 	DrawDebugString(GetWorld(), Hit.ImpactPoint, CombinedString, nullptr, FColor::Green, 2.0f, true);
+
+	if (OtherActor)
+	{
+		USAttributeComponent* AttributeComp = Cast<USAttributeComponent>(OtherActor->GetComponentByClass(USAttributeComponent::StaticClass()));
+		if (!AttributeComp)
+		{
+			return;
+		}
+		AttributeComp->ApplyHealthChange(-20.0f);
+	}
 }
 
 void ASExplosiveBarrel::PostInitializeComponents()

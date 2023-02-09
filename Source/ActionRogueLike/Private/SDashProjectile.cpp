@@ -15,6 +15,7 @@ void ASDashProjectile::TriggerTeleportTime(UParticleSystemComponent* PSystem)
 	{
 		return;
 	}
+	TeleportTriggered = true;
 	TeleportEffectComp->Activate();
 	GetWorldTimerManager().SetTimer(TimerHandle_Teleport, FTimerDelegate::CreateLambda([&] { TeleportPlayer(); }), 0.2f, false);
 }
@@ -44,6 +45,7 @@ void ASDashProjectile::TeleportPlayer()
 		return;
 	}
 	player->TeleportTo(GetActorLocation(), player->GetActorRotation(), false, true);
+	Destroy();
 }
 
 void ASDashProjectile::PostInitializeComponents()
