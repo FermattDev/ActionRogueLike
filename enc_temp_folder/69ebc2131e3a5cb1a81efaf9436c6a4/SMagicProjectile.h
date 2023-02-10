@@ -7,6 +7,8 @@
 #include "SProjectile.h"
 #include "SMagicProjectile.generated.h"
 
+class UAudioComponent;
+
 UCLASS()
 class ACTIONROGUELIKE_API ASMagicProjectile : public ASProjectile
 {
