@@ -31,12 +31,6 @@ void ASDashProjectile::TriggerTeleportOverlap(UPrimitiveComponent* HitComponent,
 	GetWorldTimerManager().SetTimer(TimerHandle_Teleport, FTimerDelegate::CreateLambda([&] { TeleportPlayer(); }), 0.2f, false);
 }
 
-void ASDashProjectile::TriggerTeleport()
-{
-	TeleportEffectComp->Activate();
-	GetWorldTimerManager().SetTimer(TimerHandle_Teleport, FTimerDelegate::CreateLambda([&] { TeleportPlayer(); }), 0.2f, false);
-}
-
 void ASDashProjectile::TeleportPlayer()
 {
 	APawn* player = GetInstigator();

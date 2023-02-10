@@ -30,8 +30,6 @@ protected:
 	UFUNCTION()
 	void TriggerTeleportOverlap(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComponent, FVector NormalImpulse, const FHitResult& Hit);
 
-	void TriggerTeleport();
-
 	void TeleportPlayer();
 
 	// Called when the game starts or when spawned

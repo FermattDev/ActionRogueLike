@@ -23,6 +23,9 @@ public:
 	// Sets default values for this character's properties
 	ASCharacter();
 
+	// Called when the game starts or when spawned
+	virtual void PostInitializeComponents() override;
+
 protected:
 
 	UPROPERTY(EditAnywhere, Category = "Attack")
@@ -73,6 +76,9 @@ protected:
 	void UltimateAttack();
 
 	void PrimaryInteract();
+
+	UFUNCTION()
+	void OnHealthChanged(AActor* InstigatorActor, USAttributeComponent* OwningComp, float NewHealth, float Delta);
 
 public:	
 	// Called every frame
