@@ -5,6 +5,7 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "SInteractionComponent.h"
 #include "SAttributeComponent.h"
+#include <Kismet/GameplayStatics.h>
 
 // Sets default values
 ASCharacter::ASCharacter()
@@ -31,6 +32,8 @@ ASCharacter::ASCharacter()
 void ASCharacter::PrimaryAttack_TimeElapsed(TSubclassOf<ASProjectile> ProjectileSpawn, FName SocketLocation)
 {
 	FVector HandLocation = GetMesh()->GetSocketLocation(SocketLocation);
+
+	UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), AttachAnim, HandLocation);
 
 	FActorSpawnParameters SpawnParams;
 	SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
@@ -119,8 +122,10 @@ void ASCharacter::PrimaryInteract()
 	InteractionComp->PrimaryInteract(location, rotation);
 }
 
-void ASCharacter::OnHealthChanged(AActor* InstigatorActor, USAttributeComponent* OwningComp, float NewHealth, float Delta)
+void ASCharacter::OnHealthChanged(AActor* InstigatorActor, USAttributeComponent* OwningComp, float NewHealth, float MaxHealth, float Delta)
 {
+	GetMesh()->SetScalarParameterValueOnMaterials("TimeToHit", GetWorld()->TimeSeconds);
+
 	if (NewHealth <= 0.0f && Delta < 0.0f)
 	{
 		APlayerController* PC = Cast<APlayerController>(GetController());

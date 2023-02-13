@@ -38,6 +38,9 @@ protected:
 	TSubclassOf<ASProjectile> UltimateClass;
 
 	UPROPERTY(EditAnywhere, Category = "Attack")
+	UParticleSystem* AttachAnim;
+
+	UPROPERTY(EditAnywhere, Category = "Attack")
 	UAnimMontage* AttackAnim;
 
 	UPROPERTY(EditAnywhere, Category = "Attack")
@@ -78,7 +81,7 @@ protected:
 	void PrimaryInteract();
 
 	UFUNCTION()
-	void OnHealthChanged(AActor* InstigatorActor, USAttributeComponent* OwningComp, float NewHealth, float Delta);
+	void OnHealthChanged(AActor* InstigatorActor, USAttributeComponent* OwningComp, float NewHealth, float MaxHealth, float Delta);
 
 public:	
 	// Called every frame

@@ -28,6 +28,8 @@ void ASMagicProjectile::OnActorOverlap(UPrimitiveComponent* OverlappedComponent,
 			return;
 		}
 		AttributeComp->ApplyHealthChange(-20.0f);
+
+		UGameplayStatics::PlayWorldCameraShake(this, ImpactStrike, GetActorLocation(), 0, 10000);
 		DestroyProjectile();
 	}
 }
@@ -36,6 +38,7 @@ void ASMagicProjectile::OnActorHit(UPrimitiveComponent* HitComponent, AActor* Ot
 {
 	if (OtherActor && OtherActor != GetInstigator())
 	{
+		UGameplayStatics::PlayWorldCameraShake(this, ImpactStrike, GetActorLocation(), 0, 1000);
 		DestroyProjectile();
 	}
 }

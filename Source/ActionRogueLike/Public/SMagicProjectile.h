@@ -25,6 +25,9 @@ public:
 	UPROPERTY(EditAnywhere)
 	USoundBase* DestroySound;
 
+	UPROPERTY(EditDefaultsOnly, Category = "Effects")
+	TSubclassOf<UCameraShakeBase> ImpactStrike;
+
 	// Sets default values for this actor's properties
 	ASMagicProjectile();
 
