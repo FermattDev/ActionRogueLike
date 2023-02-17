@@ -18,12 +18,19 @@ bool USAttributeComponent::ApplyHealthChange(float Delta)
 
 	OnHealthChanged.Broadcast(nullptr, this, Health, MaxHealth, Delta);
 
+	UE_LOG(LogTemp, Warning, TEXT("Explode caused by: %f"), Health);
+
 	return true;
 }
 
 bool USAttributeComponent::IsAlive() const
 {
 	return Health > 0.0f;
+}
+
+float USAttributeComponent::GetCurrentHealth()
+{
+	return Health;
 }
 
 bool USAttributeComponent::HasMaxHealth() const

@@ -35,6 +35,8 @@ public:
 	UFUNCTION(BlueprintCallable)
 	bool IsAlive() const;
 
+	float GetCurrentHealth();
+
 	UFUNCTION(BlueprintCallable)
 	bool HasMaxHealth() const;
 };

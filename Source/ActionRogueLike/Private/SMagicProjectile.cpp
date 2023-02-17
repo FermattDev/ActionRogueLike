@@ -23,11 +23,10 @@ void ASMagicProjectile::OnActorOverlap(UPrimitiveComponent* OverlappedComponent,
 	if (OtherActor && OtherActor != GetInstigator())
 	{
 		USAttributeComponent* AttributeComp = Cast<USAttributeComponent>(OtherActor->GetComponentByClass(USAttributeComponent::StaticClass()));
-		if (!AttributeComp)
+		if (AttributeComp)
 		{
-			return;
+			AttributeComp->ApplyHealthChange(-20.0f);
 		}
-		AttributeComp->ApplyHealthChange(-20.0f);
 
 		UGameplayStatics::PlayWorldCameraShake(this, ImpactStrike, GetActorLocation(), 0, 10000);
 		DestroyProjectile();
@@ -36,8 +35,15 @@ void ASMagicProjectile::OnActorOverlap(UPrimitiveComponent* OverlappedComponent,
 
 void ASMagicProjectile::OnActorHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComponent, FVector NormalImpulse, const FHitResult& Hit)
 {
-	if (OtherActor && OtherActor != GetInstigator())
+	AActor* instigator = GetInstigator();
+	if (OtherActor && OtherActor != instigator)
 	{
+		USAttributeComponent* AttributeComp = Cast<USAttributeComponent>(OtherActor->GetComponentByClass(USAttributeComponent::StaticClass()));
+		if (AttributeComp)
+		{
+			AttributeComp->ApplyHealthChange(-20.0f);
+		}
+
 		UGameplayStatics::PlayWorldCameraShake(this, ImpactStrike, GetActorLocation(), 0, 1000);
 		DestroyProjectile();
 	}
@@ -45,9 +51,12 @@ void ASMagicProjectile::OnActorHit(UPrimitiveComponent* HitComponent, AActor* Ot
 
 void ASMagicProjectile::DestroyProjectile()
 {
-	UGameplayStatics::PlaySoundAtLocation(GetWorld(), DestroySound, GetActorLocation());
-	UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), DestroyEffect, GetTransform());
-	Destroy();
+	if (IsValid(this))
+	{
+		UGameplayStatics::PlaySoundAtLocation(GetWorld(), DestroySound, GetActorLocation());
+		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), DestroyEffect, GetTransform());
+		Destroy();
+	}
 }
 
 // Called when the game starts or when spawned
@@ -59,10 +68,7 @@ void ASMagicProjectile::BeginPlay()
 	FlightAudio->Play();
 
 	GetWorldTimerManager().SetTimer(TimerHandle_Destroy, FTimerDelegate::CreateLambda([&] {
-		if (IsValid(this))
-		{
 			DestroyProjectile();
-		}
 		}), 5.0f, false);
 }
 
