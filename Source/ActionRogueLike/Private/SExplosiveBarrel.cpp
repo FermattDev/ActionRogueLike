@@ -34,7 +34,7 @@ void ASExplosiveBarrel::Explode(UPrimitiveComponent* HitComponent, AActor* Other
 		{
 			return;
 		}
-		AttributeComp->ApplyHealthChange(-20.0f);
+		AttributeComp->ApplyHealthChange(nullptr, -20.0f);
 	}
 }
 

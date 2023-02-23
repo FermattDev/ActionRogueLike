@@ -21,7 +21,7 @@ EBTNodeResult::Type USBTTask_Heal::ExecuteTask(UBehaviorTreeComponent& OwnerComp
 			return EBTNodeResult::Failed;
 		}
 
-		return AttributeComp->ApplyHealthChange(999) ? EBTNodeResult::Succeeded : EBTNodeResult::Failed;
+		return AttributeComp->ApplyHealthChange(nullptr, 999) ? EBTNodeResult::Succeeded : EBTNodeResult::Failed;
 	}
 
 	return EBTNodeResult::Failed;

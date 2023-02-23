@@ -28,6 +28,9 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = "Effects")
 	TSubclassOf<UCameraShakeBase> ImpactStrike;
 
+	UPROPERTY(EditAnywhere)
+	float Damage;
+
 	// Sets default values for this actor's properties
 	ASMagicProjectile();
 
