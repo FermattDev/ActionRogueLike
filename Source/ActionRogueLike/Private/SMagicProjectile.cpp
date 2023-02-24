@@ -6,6 +6,7 @@
 #include "Components/AudioComponent.h"
 #include "Runtime/Engine/Classes/Kismet/GameplayStatics.h"
 #include "Runtime/Engine/Classes/Kismet/KismetSystemLibrary.h"
+#include <SGameplayFunctionLibrary.h>
 
 // Sets default values
 ASMagicProjectile::ASMagicProjectile()
@@ -22,16 +23,14 @@ ASMagicProjectile::ASMagicProjectile()
 
 void ASMagicProjectile::OnActorOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	if (OtherActor && OtherActor != GetInstigator())
+	AActor* instigator = GetInstigator();
+	if (OtherActor && OtherActor != instigator)
 	{
-		USAttributeComponent* AttributeComp = Cast<USAttributeComponent>(OtherActor->GetComponentByClass(USAttributeComponent::StaticClass()));
-		if (AttributeComp)
+		if (USGameplayFunctionLibrary::ApplyDirectionalDamage(GetInstigator(), OtherActor, Damage, SweepResult))
 		{
-			AttributeComp->ApplyHealthChange(GetInstigator(), -Damage);
+			UGameplayStatics::PlayWorldCameraShake(this, ImpactStrike, GetActorLocation(), 0, 10000);
+			DestroyProjectile();
 		}
-
-		UGameplayStatics::PlayWorldCameraShake(this, ImpactStrike, GetActorLocation(), 0, 10000);
-		DestroyProjectile();
 	}
 }
 
@@ -40,14 +39,11 @@ void ASMagicProjectile::OnActorHit(UPrimitiveComponent* HitComponent, AActor* Ot
 	AActor* instigator = GetInstigator();
 	if (OtherActor && OtherActor != instigator)
 	{
-		USAttributeComponent* AttributeComp = Cast<USAttributeComponent>(OtherActor->GetComponentByClass(USAttributeComponent::StaticClass()));
-		if (AttributeComp)
+		if (USGameplayFunctionLibrary::ApplyDirectionalDamage(GetInstigator(), OtherActor, Damage, Hit))
 		{
-			AttributeComp->ApplyHealthChange(GetInstigator(), -Damage);
+			UGameplayStatics::PlayWorldCameraShake(this, ImpactStrike, GetActorLocation(), 0, 10000);
+			DestroyProjectile();
 		}
-
-		UGameplayStatics::PlayWorldCameraShake(this, ImpactStrike, GetActorLocation(), 0, 1000);
-		DestroyProjectile();
 	}
 }
 
