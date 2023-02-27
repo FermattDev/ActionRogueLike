@@ -31,8 +31,6 @@ bool USAttributeComponent::ApplyHealthChange(AActor* InstigatorActor, float Delt
 
 	OnHealthChanged.Broadcast(InstigatorActor, this, Health, MaxHealth, Delta);
 
-	UE_LOG(LogTemp, Warning, TEXT("Explode caused by: %f"), Health);
-
 	if (Delta < 0.0f && Health == 0.0f)
 	{
 		ASGameModeBase* GM = GetWorld()->GetAuthGameMode<ASGameModeBase>();

@@ -3,11 +3,13 @@
 
 #include "SHealthPotion.h"
 #include "SAttributeComponent.h"
+#include "SPlayerState.h"
 
 // Sets default values
 ASHealthPotion::ASHealthPotion()
 {
 	HealingAmount = 100;
+	CurrencyValueChange = -20;
 
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
@@ -23,6 +25,17 @@ void ASHealthPotion::Interact_Implementation(APawn* InstigatorPawn)
 
 	if (Active && !AttributeComp->HasMaxHealth())
 	{
+		ASPlayerState* state = InstigatorPawn->GetPlayerState<ASPlayerState>();
+
+		if (state == nullptr)
+		{
+			return;
+		}
+		if (!state->ApplyCreditValue(CurrencyValueChange))
+		{
+			return;
+		}
+
 		AttributeComp->ApplyHealthChange(this, HealingAmount);
 		StaticMesh->SetVisibility(false);
 

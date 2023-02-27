@@ -23,6 +23,9 @@ protected:
 	UPROPERTY(VisibleAnywhere)
 	UStaticMeshComponent* StaticMesh;
 
+	UPROPERTY(EditDefaultsOnly, Category = "Currency")
+	float CurrencyValueChange;
+
 	FTimerHandle TimerHandle_Interact;
 
 	// Called when the game starts or when spawned
