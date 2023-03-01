@@ -5,6 +5,7 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "SInteractionComponent.h"
 #include "SAttributeComponent.h"
+#include "SActionComponent.h"
 #include <Kismet/GameplayStatics.h>
 
 // Sets default values
@@ -24,48 +25,11 @@ ASCharacter::ASCharacter()
 
 	AttributeComp = CreateDefaultSubobject<USAttributeComponent>("AttributeComp");
 
+	ActionComp = CreateDefaultSubobject<USActionComponent>("ActionComp");
+
 	GetCharacterMovement()->bOrientRotationToMovement = true;
 
 	bUseControllerRotationYaw = false;
-}
-
-void ASCharacter::PrimaryAttack_TimeElapsed(TSubclassOf<ASProjectile> ProjectileSpawn, FName SocketLocation)
-{
-	FVector HandLocation = GetMesh()->GetSocketLocation(SocketLocation);
-
-	UGameplayStatics::SpawnEmitterAttached(AttachAnim, GetMesh(), SocketLocation, FVector::ZeroVector, FRotator::ZeroRotator, EAttachLocation::SnapToTarget);
-
-	FActorSpawnParameters SpawnParams;
-	SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-	SpawnParams.Instigator = this;
-
-	UWorld* MyWorld = GetWorld();
-	FHitResult Hit;
-
-	FVector Start = CameraComp->GetComponentLocation();
-	FRotator Rotation = CameraComp->GetComponentRotation();
-
-	FVector End = (Start + (Rotation.Vector()) * 5000);
-
-	FCollisionQueryParams CollisionParams;
-	CollisionParams.AddIgnoredActor(this);
-
-	MyWorld->LineTraceSingleByProfile(Hit, Start, End, "Projectile", CollisionParams);
-
-	FVector HitPosition = Hit.TraceEnd;
-
-	if (Hit.IsValidBlockingHit())
-	{
-		HitPosition = Hit.ImpactPoint;
-
-		DrawDebugSphere(GetWorld(), Hit.ImpactPoint, 5.0f, 32, FColor::Blue, false, 2.0f);
-	}
-
-	FTransform SpawnTM = FTransform((HitPosition - HandLocation).Rotation(), HandLocation);
-
-	DrawDebugLine(GetWorld(), Start, End, FColor::Blue, false, 2.0f, 00, 2.0f);
-
-	ASProjectile* Projectile = MyWorld->SpawnActor<ASProjectile>(ProjectileSpawn, SpawnTM, SpawnParams);
 }
 
 // Called when the game starts or when spawned
@@ -94,25 +58,29 @@ void ASCharacter::MoveRight(float Value)
 	AddMovementInput(rightVector, Value);
 }
 
+void ASCharacter::SprintStart()
+{
+	ActionComp->StartActionByName(this, "Sprint");
+}
+
+void ASCharacter::SprintStop()
+{
+	ActionComp->StopActionByName(this, "Sprint");
+}
+
 void ASCharacter::PrimaryAttack()
 {
-	PlayAnimMontage(AttackAnim);
-
-	GetWorldTimerManager().SetTimer(TimerHandle_PrimaryAttack, FTimerDelegate::CreateLambda([&] { PrimaryAttack_TimeElapsed(ProjectileClass, "Muzzle_01"); }), 0.2f, false);
+	ActionComp->StartActionByName(this, "PrimaryAttack");
 }
 
 void ASCharacter::SecondaryAttack()
 {
-	PlayAnimMontage(SecondaryAttackAnim);
-
-	GetWorldTimerManager().SetTimer(TimerHandle_PrimaryAttack, FTimerDelegate::CreateLambda([&] { PrimaryAttack_TimeElapsed(SecondaryClass, "Muzzle_01"); }), 0.2f, false);
+	ActionComp->StartActionByName(this, "SecondaryAttack");
 }
 
 void ASCharacter::UltimateAttack()
 {
-	PlayAnimMontage(UltimateAttackAnim);
-
-	GetWorldTimerManager().SetTimer(TimerHandle_PrimaryAttack, FTimerDelegate::CreateLambda([&] { PrimaryAttack_TimeElapsed(UltimateClass, "Muzzle_01"); }), 0.2f, false);
+	ActionComp->StartActionByName(this, "UltimateAttack");
 }
 
 void ASCharacter::PrimaryInteract()
@@ -166,6 +134,10 @@ void ASCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 	PlayerInputComponent->BindAction("PrimaryInteract", IE_Pressed, this, &ASCharacter::PrimaryInteract);
 
 	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ASCharacter::Jump);
+
+	PlayerInputComponent->BindAction("Sprint", IE_Pressed, this, &ASCharacter::SprintStart);
+	PlayerInputComponent->BindAction("Sprint", IE_Released, this, &ASCharacter::SprintStop);
+
 }
 
 void ASCharacter::HealSelf(float Amount)

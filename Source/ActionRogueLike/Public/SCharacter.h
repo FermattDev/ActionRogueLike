@@ -13,6 +13,7 @@ class UCameraComponent;
 class USpringArmComponent;
 class USInteractionComponent;
 class USAttributeComponent;
+class USActionComponent;
 
 UCLASS()
 class ACTIONROGUELIKE_API ASCharacter : public ACharacter
@@ -28,31 +29,6 @@ public:
 
 protected:
 
-	UPROPERTY(EditAnywhere, Category = "Attack")
-	TSubclassOf<ASProjectile> ProjectileClass;
-
-	UPROPERTY(EditAnywhere, Category = "Attack")
-	TSubclassOf<ASProjectile> SecondaryClass;
-
-	UPROPERTY(EditAnywhere, Category = "Attack")
-	TSubclassOf<ASProjectile> UltimateClass;
-
-	UPROPERTY(EditAnywhere, Category = "Attack")
-	UParticleSystem* AttachAnim;
-
-	UPROPERTY(EditAnywhere, Category = "Attack")
-	UAnimMontage* AttackAnim;
-
-	UPROPERTY(EditAnywhere, Category = "Attack")
-	UAnimMontage* SecondaryAttackAnim;
-
-	UPROPERTY(EditAnywhere, Category = "Attack")
-	UAnimMontage* UltimateAttackAnim;
-
-	FTimerHandle TimerHandle_PrimaryAttack;
-
-	void PrimaryAttack_TimeElapsed(TSubclassOf<ASProjectile> ProjectileSpawn, FName SocketLocation);
-
 	UPROPERTY(VisibleAnywhere)
 	USpringArmComponent* SpringArmComp;
 
@@ -62,8 +38,11 @@ protected:
 	UPROPERTY(VisibleAnywhere)
 	USInteractionComponent* InteractionComp;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 	USAttributeComponent* AttributeComp;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
+	USActionComponent* ActionComp;
 
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -71,6 +50,10 @@ protected:
 	void MoveForward(float Value);
 
 	void MoveRight(float Value);
+
+	void SprintStart();
+
+	void SprintStop();
 
 	void PrimaryAttack();
 

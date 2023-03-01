@@ -7,6 +7,8 @@
 #include "Runtime/Engine/Classes/Kismet/GameplayStatics.h"
 #include "Runtime/Engine/Classes/Kismet/KismetSystemLibrary.h"
 #include <SGameplayFunctionLibrary.h>
+#include <SActionComponent.h>
+#include <SActionEffect.h>
 
 // Sets default values
 ASMagicProjectile::ASMagicProjectile()
@@ -26,24 +28,24 @@ void ASMagicProjectile::OnActorOverlap(UPrimitiveComponent* OverlappedComponent,
 	AActor* instigator = GetInstigator();
 	if (OtherActor && OtherActor != instigator)
 	{
+		USActionComponent* ActionComp = Cast<USActionComponent>(OtherActor->GetComponentByClass(USActionComponent::StaticClass()));
+
+		if (ActionComp && ActionComp->ActiveGameplayTags.HasTag(ParryTag))
+		{
+			MovementComp->Velocity = -MovementComp->Velocity;
+
+			SetInstigator(Cast<APawn>(OtherActor));
+
+			return;
+		}
+
 		if (USGameplayFunctionLibrary::ApplyDirectionalDamage(GetInstigator(), OtherActor, Damage, SweepResult))
 		{
-			UGameplayStatics::PlayWorldCameraShake(this, ImpactStrike, GetActorLocation(), 0, 10000);
-			DestroyProjectile();
+			ActionComp->AddAction(GetInstigator(), BurningActionClass);
 		}
-	}
-}
-
-void ASMagicProjectile::OnActorHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComponent, FVector NormalImpulse, const FHitResult& Hit)
-{
-	AActor* instigator = GetInstigator();
-	if (OtherActor && OtherActor != instigator)
-	{
-		if (USGameplayFunctionLibrary::ApplyDirectionalDamage(GetInstigator(), OtherActor, Damage, Hit))
-		{
-			UGameplayStatics::PlayWorldCameraShake(this, ImpactStrike, GetActorLocation(), 0, 10000);
-			DestroyProjectile();
-		}
+		
+		UGameplayStatics::PlayWorldCameraShake(this, ImpactStrike, GetActorLocation(), 0, 10000);
+		DestroyProjectile();
 	}
 }
 
@@ -82,5 +84,4 @@ void ASMagicProjectile::PostInitializeComponents()
 	Super::PostInitializeComponents();
 
 	SphereComp->OnComponentBeginOverlap.AddDynamic(this, &ASMagicProjectile::OnActorOverlap);
-	SphereComp->OnComponentHit.AddDynamic(this, &ASMagicProjectile::OnActorHit);
 }
