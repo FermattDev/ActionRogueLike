@@ -1,41 +1,51 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-
-#include "SPowerUp.h"
+#include "SPowerup.h"
+#include "Components/SphereComponent.h"
+#include "Components/StaticMeshComponent.h"
 
 // Sets default values
 ASPowerUp::ASPowerUp()
 {
- 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	PrimaryActorTick.bCanEverTick = true;
+	SceneComponent = CreateDefaultSubobject<USceneComponent>(TEXT("SceneComponent"));
+	SetRootComponent(SceneComponent);
 
-	StaticMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("StaticMesh"));
-	RootComponent = StaticMesh;
-}
+	MeshComp = CreateDefaultSubobject<UStaticMeshComponent>("MeshComp");
+	// Disable collision, instead we use SphereComp to handle interaction queries
+	MeshComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	MeshComp->SetupAttachment(RootComponent);
 
-void ASPowerUp::ResetPotion_TimeElapsed()
-{
-	Active = true;
-	StaticMesh->SetVisibility(true);
+	SphereComp = CreateDefaultSubobject<USphereComponent>("SphereComp");
+	SphereComp->SetCollisionProfileName("Powerup");
+	SphereComp->SetupAttachment(RootComponent);
+
+	RespawnTime = 10.0f;
+
+	SetReplicates(true);
 }
 
 void ASPowerUp::Interact_Implementation(APawn* InstigatorPawn)
 {
+
 }
 
-// Called when the game starts or when spawned
-void ASPowerUp::BeginPlay()
+void ASPowerUp::ShowPowerup()
 {
-	Super::BeginPlay();
-
-	Active = true;
-	StaticMesh->SetVisibility(true);
+	SetPowerupState(true);
 }
 
-// Called every frame
-void ASPowerUp::Tick(float DeltaTime)
+
+void ASPowerUp::HideAndCooldownPowerup()
 {
-	Super::Tick(DeltaTime);
+	SetPowerupState(false);
 
+	GetWorldTimerManager().SetTimer(TimerHandle_RespawnTimer, this, &ASPowerUp::ShowPowerup, RespawnTime);
 }
 
+void ASPowerUp::SetPowerupState(bool bNewIsActive)
+{
+	SetActorEnableCollision(bNewIsActive);
+
+	// Set visibility on root and all children
+	RootComponent->SetVisibility(bNewIsActive, true);
+}

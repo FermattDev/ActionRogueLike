@@ -4,14 +4,14 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
-#include "Components/SphereComponent.h"
-#include "GameFramework/ProjectileMovementComponent.h"
-#include "Particles/ParticleSystemComponent.h"
 #include "SProjectile.generated.h"
 
+class UCameraShakeBase;
 class USphereComponent;
 class UProjectileMovementComponent;
 class UParticleSystemComponent;
+class USoundCue;
+class UAudioComponent;
 
 UCLASS()
 class ACTIONROGUELIKE_API ASProjectile : public AActor
@@ -23,6 +23,21 @@ public:
 	ASProjectile();
 
 protected:
+	UPROPERTY(EditDefaultsOnly, Category = "Effects|Shake")
+	TSubclassOf<UCameraShakeBase> ImpactShake;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Effects|Shake")
+	float ImpactShakeInnerRadius;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Effects|Shake")
+	float ImpactShakeOuterRadius;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Effects")
+	UParticleSystem* ImpactVFX;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Effects")
+	USoundCue* ImpactSound;
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	USphereComponent* SphereComp;
 
@@ -32,12 +47,18 @@ protected:
 	UPROPERTY(VisibleAnywhere)
 	UParticleSystemComponent* EffectComp;
 
-	// Called when the game starts or when spawned
-	virtual void BeginPlay() override;
+	UPROPERTY(VisibleAnywhere, Category = "Components")
+	UAudioComponent* AudioComp;
 
-public:	
-	// Called every frame
-	virtual void Tick(float DeltaTime) override;
+	UFUNCTION()
+	virtual void OnActorHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
+
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
+	void Explode();
+
+	virtual void PostInitializeComponents() override;
+
+public:
 
 	FName GetProjectileProfile();
 };

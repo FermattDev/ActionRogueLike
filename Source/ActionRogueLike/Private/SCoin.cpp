@@ -6,21 +6,19 @@
 
 ASCoin::ASCoin()
 {
-	CurrencyValueChange = 20;
+	CreditsAmount = 80;
 }
 
 void ASCoin::Interact_Implementation(APawn* InstigatorPawn)
 {
-	ASPlayerState* state = InstigatorPawn->GetPlayerState<ASPlayerState>();
-
-	if (state == nullptr)
-	{
-		return;
-	}
-	if (!state->ApplyCreditValue(CurrencyValueChange))
+	if (!ensure(InstigatorPawn))
 	{
 		return;
 	}
 
-	Destroy();
+	if (ASPlayerState* PS = InstigatorPawn->GetPlayerState<ASPlayerState>())
+	{
+		PS->ApplyCreditValue(CreditsAmount);
+		HideAndCooldownPowerup();
+	}
 }

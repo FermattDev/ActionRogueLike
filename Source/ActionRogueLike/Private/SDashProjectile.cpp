@@ -1,51 +1,55 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "SDashProjectile.h"
+#include "Kismet/GameplayStatics.h"
+#include "Particles/ParticleSystemComponent.h"
+#include "GameFramework/ProjectileMovementComponent.h"
+#include "Components/SphereComponent.h"
 
 ASDashProjectile::ASDashProjectile()
 {
-	TeleportEffectComp = CreateDefaultSubobject<UParticleSystemComponent>("TeleportEffectComp");
-	TeleportEffectComp->SetupAttachment(SphereComp);
-	TeleportEffectComp->bAutoActivate = false;
+	TeleportDelay = 0.2f;
+	DetonateDelay = 0.2f;
+
+	MovementComp->InitialSpeed = 6000.f;
 }
 
-void ASDashProjectile::TriggerTeleportTime(UParticleSystemComponent* PSystem)
+void ASDashProjectile::BeginPlay()
 {
-	if (TeleportTriggered)
-	{
-		return;
-	}
-	TeleportTriggered = true;
-	TeleportEffectComp->Activate();
-	GetWorldTimerManager().SetTimer(TimerHandle_Teleport, FTimerDelegate::CreateLambda([&] { TeleportPlayer(); }), 0.2f, false);
+	Super::BeginPlay();
+
+	GetWorldTimerManager().SetTimer(TimerHandle_DelayedDetonate, this, &ASDashProjectile::Explode, DetonateDelay);
 }
 
-void ASDashProjectile::TriggerTeleportOverlap(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComponent, FVector NormalImpulse, const FHitResult& Hit)
+void ASDashProjectile::Explode_Implementation()
 {
-	if (TeleportTriggered)
-	{
-		return;
-	}
-	TeleportTriggered = true;
-	TeleportEffectComp->Activate();
-	GetWorldTimerManager().SetTimer(TimerHandle_Teleport, FTimerDelegate::CreateLambda([&] { TeleportPlayer(); }), 0.2f, false);
+	// Clear timer if the Explode was already called through another source like OnActorHit
+	GetWorldTimerManager().ClearTimer(TimerHandle_DelayedDetonate);
+
+	UGameplayStatics::SpawnEmitterAtLocation(this, ImpactVFX, GetActorLocation(), GetActorRotation());
+
+	EffectComp->DeactivateSystem();
+
+	MovementComp->StopMovementImmediately();
+	SetActorEnableCollision(false);
+
+	FTimerHandle TimerHandle_DelayedTeleport;
+	GetWorldTimerManager().SetTimer(TimerHandle_DelayedTeleport, this, &ASDashProjectile::TeleportInstigator, TeleportDelay);
 }
 
-void ASDashProjectile::TeleportPlayer()
+void ASDashProjectile::TeleportInstigator()
 {
 	APawn* player = GetInstigator();
-	if (player == nullptr)
+	if (!ensure(player))
 	{
 		return;
 	}
 	player->TeleportTo(GetActorLocation(), player->GetActorRotation(), false, true);
-	Destroy();
 }
 
 void ASDashProjectile::PostInitializeComponents()
 {
 	Super::PostInitializeComponents();
 
-	EffectComp->OnSystemFinished.AddDynamic(this, &ASDashProjectile::TriggerTeleportTime);
-	SphereComp->OnComponentHit.AddDynamic(this, &ASDashProjectile::TriggerTeleportOverlap);
+	SphereComp->OnComponentHit.AddDynamic(this, &ASDashProjectile::OnActorHit);
 }

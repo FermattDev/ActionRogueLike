@@ -7,7 +7,7 @@
 #include "SAttributeComponent.generated.h"
 
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_FiveParams(FOnHealthChanged, AActor*, InstigatorActor, USAttributeComponent*, OwningComp, float, NewHealth, float, MaxHealth, float, Delta);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_FiveParams(FOnHealthChanged, AActor*, InstigatorActor, USAttributeComponent*, OwningComp, float, NewHealth, float, NewRage, float, Delta);
 
 UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
 class ACTIONROGUELIKE_API USAttributeComponent : public UActorComponent
@@ -25,11 +25,20 @@ public:
 	USAttributeComponent();
 
 protected:
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Attributes")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Replicated, Category = "Attributes")
 	float Health;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Attributes")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Replicated, Category = "Attributes")
 	float MaxHealth;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Replicated, Category = "Attributes")
+	float Rage;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Replicated, Category = "Attributes")
+	float MaxRage;
+
+	UFUNCTION(NetMulticast, Reliable)
+	void MulticastHealthChanged(AActor* Instigator, float NewHealth, float NewRage, float Delta);
 
 public:
 	UPROPERTY(BlueprintAssignable)
@@ -38,10 +47,16 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Attributes")
 	bool ApplyHealthChange(AActor* InstigatorActor, float Delta);
 
+	UFUNCTION(BlueprintCallable, Category = "Attributes")
+	bool CheckRageCost(AActor* InstigatorActor, float Delta);
+
 	UFUNCTION(BlueprintCallable)
 	bool IsAlive() const;
 
 	float GetCurrentHealth();
+
+	UFUNCTION(BlueprintCallable)
+	float GetMaxHealth();
 
 	UFUNCTION(BlueprintCallable)
 	bool HasMaxHealth() const;

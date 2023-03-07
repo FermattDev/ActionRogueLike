@@ -15,26 +15,25 @@ class ACTIONROGUELIKE_API ASDashProjectile : public ASProjectile
 	GENERATED_BODY()
 
 public:
-	// Sets default values for this actor's properties
+
 	ASDashProjectile();
 
 protected:
-	FTimerHandle TimerHandle_Teleport;
 
-	UPROPERTY(VisibleAnywhere)
-	UParticleSystemComponent* TeleportEffectComp;
+	UPROPERTY(EditDefaultsOnly, Category = "Teleport")
+	float TeleportDelay;
 
-	UFUNCTION()
-	void TriggerTeleportTime(UParticleSystemComponent* PSystem);
+	UPROPERTY(EditDefaultsOnly, Category = "Teleport")
+	float DetonateDelay;
 
-	UFUNCTION()
-	void TriggerTeleportOverlap(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComponent, FVector NormalImpulse, const FHitResult& Hit);
+	FTimerHandle TimerHandle_DelayedDetonate;
 
-	void TeleportPlayer();
+	// Base class using BlueprintNativeEvent, we must override the _Implementation not the Explode()
+	virtual void Explode_Implementation() override;
 
-	// Called when the game starts or when spawned
+	void TeleportInstigator();
+
+	virtual void BeginPlay() override;
+
 	virtual void PostInitializeComponents() override;
-
-private:
-	bool TeleportTriggered = false;
 };

@@ -3,7 +3,6 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GameFramework/Actor.h"
 #include "SPowerUp.h"
 #include "SHealthPotion.generated.h"
 
@@ -20,16 +19,11 @@ public:
 
 protected:
 
-	UPROPERTY(EditAnywhere)
-	float HealingAmount;
+	UPROPERTY(EditAnywhere, Category = "HealthPotion")
+	int32 CreditCost;
 
-	// Called when the game starts or when spawned
-	virtual void BeginPlay() override;
+public:
 
-	virtual void Interact_Implementation(APawn* InstigatorPawn) override;
-
-public:	
-	// Called every frame
-	virtual void Tick(float DeltaTime) override;
+	void Interact_Implementation(APawn* InstigatorPawn) override;
 
 };

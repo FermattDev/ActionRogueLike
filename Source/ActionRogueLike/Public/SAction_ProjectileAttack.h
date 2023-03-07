@@ -34,6 +34,9 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Attack")
 	UParticleSystem* CastingEffect;
 
+	UPROPERTY(EditDefaultsOnly, Category = "Attack")
+	float RageCost;
+
 	UFUNCTION()
 	void AttackDelay_Elapsed(ACharacter* InstigatorCharacter);
 

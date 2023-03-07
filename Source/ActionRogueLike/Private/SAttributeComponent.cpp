@@ -2,6 +2,7 @@
 
 #include "SAttributeComponent.h"
 #include <AI/SGameModeBase.h>
+#include <Net/UnrealNetwork.h>
 
 static TAutoConsoleVariable<float> CVarDamageMultiplier(TEXT("su.DamageMultiplier"), 1.0f, TEXT("Global damage modifier for attribute component."), ECVF_Cheat);
 
@@ -10,11 +11,18 @@ USAttributeComponent::USAttributeComponent()
 {
 	MaxHealth = 100;
 	Health = MaxHealth;
+
+	SetIsReplicatedByDefault(true);
+}
+
+void USAttributeComponent::MulticastHealthChanged_Implementation(AActor* Instigator, float NewHealth, float NewRage, float Delta)
+{
+	OnHealthChanged.Broadcast(Instigator, this, NewHealth, NewRage, Delta);
 }
 
 bool USAttributeComponent::ApplyHealthChange(AActor* InstigatorActor, float Delta)
 {
-	if(!GetOwner()->CanBeDamaged() && Delta < 0.0f)
+	if(!GetOwner()->CanBeDamaged() && Delta < 0.0f || !IsAlive())
 	{
 		return false;
 	}
@@ -24,12 +32,21 @@ bool USAttributeComponent::ApplyHealthChange(AActor* InstigatorActor, float Delt
 		float DamageMultiplier = CVarDamageMultiplier.GetValueOnGameThread();
 
 		Delta *= DamageMultiplier;
+
+		Rage += FMath::Abs(Delta);
+		Rage = FMath::Clamp(Rage, 0, MaxRage);
+	}
+	else if (Delta == 0.0f)
+	{
+		return false;
 	}
 
 	Health += Delta;
 	Health = FMath::Clamp(Health, 0, MaxHealth);
 
-	OnHealthChanged.Broadcast(InstigatorActor, this, Health, MaxHealth, Delta);
+	//OnHealthChanged.Broadcast(InstigatorActor, this, Health, MaxHealth, Delta);
+
+	MulticastHealthChanged(InstigatorActor, Health, Rage, Delta);
 
 	if (Delta < 0.0f && Health == 0.0f)
 	{
@@ -43,6 +60,25 @@ bool USAttributeComponent::ApplyHealthChange(AActor* InstigatorActor, float Delt
 	return true;
 }
 
+bool USAttributeComponent::CheckRageCost(AActor* InstigatorActor, float Delta)
+{
+	if (Delta <= 0)
+	{
+		return true;
+	}
+
+	float NewRage = Rage - Delta;
+	if (NewRage < 0)
+	{
+		return false;
+	}
+	Rage = NewRage;
+
+	MulticastHealthChanged(InstigatorActor, Health, Rage, Delta);
+
+	return true;
+}
+
 bool USAttributeComponent::IsAlive() const
 {
 	return Health > 0.0f;
@@ -51,6 +87,11 @@ bool USAttributeComponent::IsAlive() const
 float USAttributeComponent::GetCurrentHealth()
 {
 	return Health;
+}
+
+float USAttributeComponent::GetMaxHealth()
+{
+	return MaxHealth;
 }
 
 bool USAttributeComponent::HasMaxHealth() const
@@ -82,4 +123,14 @@ bool USAttributeComponent::IsActorAlive(AActor* Actor)
 	}
 
 	return false;
+}
+
+void USAttributeComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(USAttributeComponent, Health);
+	DOREPLIFETIME(USAttributeComponent, MaxHealth);
+
+	//DOREPLIFETIME_CONDITION(USAttributeComponent, MaxHealth, COND_OwnerOnly)
 }

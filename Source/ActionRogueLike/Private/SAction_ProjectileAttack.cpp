@@ -3,6 +3,7 @@
 #include "SAction_ProjectileAttack.h"
 #include <Kismet/GameplayStatics.h>
 #include "GameFramework/Character.h"
+#include "SAttributeComponent.h"
 
 USAction_ProjectileAttack::USAction_ProjectileAttack()
 {
@@ -12,9 +13,17 @@ USAction_ProjectileAttack::USAction_ProjectileAttack()
 
 void USAction_ProjectileAttack::StartAction_Implementation(AActor* Instigator)
 {
+	USAttributeComponent* AttributeComp = USAttributeComponent::GetAttributes(Instigator);
+
+	if (!AttributeComp->CheckRageCost(Instigator, RageCost))
+	{
+		return;
+	}
+
 	Super::StartAction_Implementation(Instigator);
 
 	ACharacter* Character = Cast<ACharacter>(Instigator);
+
 
 	if (Character)
 	{

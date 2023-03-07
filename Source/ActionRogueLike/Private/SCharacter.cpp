@@ -93,7 +93,7 @@ void ASCharacter::PrimaryInteract()
 	InteractionComp->PrimaryInteract(location, rotation);
 }
 
-void ASCharacter::OnHealthChanged(AActor* InstigatorActor, USAttributeComponent* OwningComp, float NewHealth, float MaxHealth, float Delta)
+void ASCharacter::OnHealthChanged(AActor* InstigatorActor, USAttributeComponent* OwningComp, float NewHealth, float NewRage, float Delta)
 {
 	GetMesh()->SetScalarParameterValueOnMaterials("TimeToHit", GetWorld()->TimeSeconds);
 

@@ -35,12 +35,16 @@ void ASAICharacter::PostInitializeComponents()
 
 void ASAICharacter::OnPawnSeen(APawn* Pawn)
 {
-	SetTargetActor(Pawn);
+	AAIController* AIC = Cast<AAIController>(GetController());
+	if (AIC && AIC->GetBlackboardComponent()->GetValueAsObject("TargetActor") != nullptr)
+	{
+		SetTargetActor(Pawn);
 
-	DrawDebugString(GetWorld(), GetActorLocation(), "PLAYER SPOTTED", nullptr, FColor::White, 4.0f, true);
+		DrawDebugString(GetWorld(), GetActorLocation(), "PLAYER SPOTTED", nullptr, FColor::White, 4.0f, true);
+	}
 }
 
-void ASAICharacter::OnHealthChanged(AActor* InstigatorActor, USAttributeComponent* OwningComp, float NewHealth, float MaxHealth, float Delta)
+void ASAICharacter::OnHealthChanged(AActor* InstigatorActor, USAttributeComponent* OwningComp, float NewHealth, float NewRage, float Delta)
 {
 	if (Delta < 0.0f)
 	{
@@ -89,5 +93,6 @@ void ASAICharacter::SetTargetActor(AActor* NewTarget)
 	if (AIC)
 	{
 		AIC->GetBlackboardComponent()->SetValueAsObject("TargetActor", NewTarget);
+		OnTargetActorSet.Broadcast(this, this, NewTarget);
 	}
 }

@@ -18,6 +18,8 @@ bool ASPlayerState::ApplyCreditValue(int delta)
 
 	CreditsAmount = result;
 
+	OnCreditsChanged.Broadcast(this, CreditsAmount, -delta);
+
 	UE_LOG(LogTemp, Log, TEXT("Current credits amount: %i"), CreditsAmount);
 
 	return true;

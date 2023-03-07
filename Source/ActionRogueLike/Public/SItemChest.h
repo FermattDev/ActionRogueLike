@@ -13,10 +13,17 @@ UCLASS()
 class ACTIONROGUELIKE_API ASItemChest : public AActor, public ISGameplayInterface
 {
 	GENERATED_BODY()
-
+		
 	void Interact_Implementation(APawn* InstigatorPawn);
 
 protected:
+
+	UPROPERTY(ReplicatedUsing="OnRep_LidOpened", BlueprintReadOnly)
+	bool bLidOpened;
+
+	UFUNCTION()
+	void OnRep_LidOpened();
+
 	UPROPERTY(VisibleAnywhere)
 	UStaticMeshComponent* BaseMesh;
 

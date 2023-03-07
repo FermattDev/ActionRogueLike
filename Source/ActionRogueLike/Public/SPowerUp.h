@@ -5,7 +5,11 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "SGameplayInterface.h"
-#include "SPowerUp.generated.h"
+#include "SPowerup.generated.h"
+
+class USphereComponent;
+class UStaticMeshComponent;
+class USceneComponent;
 
 UCLASS()
 class ACTIONROGUELIKE_API ASPowerUp : public AActor, public ISGameplayInterface
@@ -18,25 +22,29 @@ public:
 
 protected:
 
-	bool Active;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	class USceneComponent* SceneComponent;
 
-	UPROPERTY(VisibleAnywhere)
-	UStaticMeshComponent* StaticMesh;
+	UPROPERTY(EditAnywhere, Category = "Powerup")
+	float RespawnTime;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Currency")
-	float CurrencyValueChange;
+	FTimerHandle TimerHandle_RespawnTimer;
 
-	FTimerHandle TimerHandle_Interact;
+	UFUNCTION()
+	void ShowPowerup();
 
-	// Called when the game starts or when spawned
-	virtual void BeginPlay() override;
+	void HideAndCooldownPowerup();
 
-	void ResetPotion_TimeElapsed();
+	void SetPowerupState(bool bNewIsActive);
 
-	virtual void Interact_Implementation(APawn* InstigatorPawn);
+	UPROPERTY(VisibleAnywhere, Category = "Components")
+	USphereComponent* SphereComp;
+
+	UPROPERTY(VisibleAnywhere, Category = "Components")
+	UStaticMeshComponent* MeshComp;
 
 public:	
-	// Called every frame
-	virtual void Tick(float DeltaTime) override;
+
+	virtual void Interact_Implementation(APawn* InstigatorPawn) override;
 
 };

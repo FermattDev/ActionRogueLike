@@ -64,7 +64,7 @@ protected:
 	void PrimaryInteract();
 
 	UFUNCTION()
-	void OnHealthChanged(AActor* InstigatorActor, USAttributeComponent* OwningComp, float NewHealth, float MaxHealth, float Delta);
+	void OnHealthChanged(AActor* InstigatorActor, USAttributeComponent* OwningComp, float NewHealth, float NewRage, float Delta);
 
 	virtual FVector GetPawnViewLocation() const override;
 

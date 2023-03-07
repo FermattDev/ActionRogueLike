@@ -12,6 +12,8 @@ class UUserWidget;
 class USWorldUserWidget;
 class USActionComponent;
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FOnTargetActorSet, AActor*, InstigatorActor, ASAICharacter*, OwningComp, AActor*, NewTarget);
+
 UCLASS()
 class ACTIONROGUELIKE_API ASAICharacter : public ACharacter
 {
@@ -30,7 +32,11 @@ protected:
 	UPROPERTY(VisibleAnywhere, Category = "Effects")
 	FName TimeToHitParamName;
 
+	UFUNCTION()
 	void SetTargetActor(AActor* NewTarget);
+
+	UPROPERTY(BlueprintAssignable)
+	FOnTargetActorSet OnTargetActorSet;
 
 	virtual void PostInitializeComponents() override;
 
@@ -47,6 +53,6 @@ protected:
 	void OnPawnSeen(APawn* Pawn);
 
 	UFUNCTION()
-	void OnHealthChanged(AActor* InstigatorActor, USAttributeComponent* OwningComp, float NewHealth, float MaxHealth, float Delta);
+	void OnHealthChanged(AActor* InstigatorActor, USAttributeComponent* OwningComp, float NewHealth, float NewRage, float Delta);
 
 };
