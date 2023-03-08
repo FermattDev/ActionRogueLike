@@ -9,6 +9,11 @@ void ASActionGrant::Interact_Implementation(APawn* InstigatorPawn)
 	if (ensure(InstigatorPawn))
 	{
 		USActionComponent* ActionComp = Cast<USActionComponent>(InstigatorPawn->GetComponentByClass(USActionComponent::StaticClass()));
-		ActionComp->AddAction(InstigatorPawn, ActionGranted);
+
+		if (!ActionComp->IsActionAdded(ActionGranted))
+		{
+			ActionComp->AddAction(InstigatorPawn, ActionGranted);
+		}
 	}
 }
+

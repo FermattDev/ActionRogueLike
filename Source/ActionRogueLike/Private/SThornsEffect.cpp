@@ -41,6 +41,11 @@ void USThornsEffect::OnHealthChanged(AActor* InstigatorActor, USAttributeCompone
 {
 	if (InstigatorActor && InstigatorActor != MyInstigator)
 	{
+		if (Delta >= 0)
+		{
+			return;
+		}
+		
 		USAttributeComponent* AttributeComp = Cast<USAttributeComponent>(InstigatorActor->GetComponentByClass(USAttributeComponent::StaticClass()));
 		if (AttributeComp)
 		{
