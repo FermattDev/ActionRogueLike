@@ -3,6 +3,7 @@
 #include "SPowerup.h"
 #include "Components/SphereComponent.h"
 #include "Components/StaticMeshComponent.h"
+#include <Net/UnrealNetwork.h>
 
 // Sets default values
 ASPowerUp::ASPowerUp()
@@ -21,7 +22,17 @@ ASPowerUp::ASPowerUp()
 
 	RespawnTime = 10.0f;
 
-	SetReplicates(true);
+	bReplicates = true;
+}
+
+void ASPowerUp::OnRep_PowerUpTriggered()
+{
+	if (bPowerUpTriggered)
+	{
+		SetPowerupState(false);
+		return;
+	}
+	SetPowerupState(true);
 }
 
 void ASPowerUp::Interact_Implementation(APawn* InstigatorPawn)
@@ -31,12 +42,16 @@ void ASPowerUp::Interact_Implementation(APawn* InstigatorPawn)
 
 void ASPowerUp::ShowPowerup()
 {
+	bPowerUpTriggered = false;
+
 	SetPowerupState(true);
 }
 
 
 void ASPowerUp::HideAndCooldownPowerup()
 {
+	bPowerUpTriggered = true;
+
 	SetPowerupState(false);
 
 	GetWorldTimerManager().SetTimer(TimerHandle_RespawnTimer, this, &ASPowerUp::ShowPowerup, RespawnTime);
@@ -48,4 +63,11 @@ void ASPowerUp::SetPowerupState(bool bNewIsActive)
 
 	// Set visibility on root and all children
 	RootComponent->SetVisibility(bNewIsActive, true);
+}
+
+void ASPowerUp::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(ASPowerUp, bPowerUpTriggered);
 }

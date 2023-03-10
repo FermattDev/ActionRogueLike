@@ -2,6 +2,12 @@
 
 
 #include "SPlayerState.h"
+#include <Net/UnrealNetwork.h>
+
+void ASPlayerState::MulticastCreditsChanged_Implementation(AActor* CreditsInstigator, float NewCredits, float Delta)
+{
+	OnCreditsChanged.Broadcast(this, NewCredits, Delta);
+}
 
 int ASPlayerState::GetCreditAmount()
 {
@@ -18,9 +24,16 @@ bool ASPlayerState::ApplyCreditValue(int delta)
 
 	CreditsAmount = result;
 
-	OnCreditsChanged.Broadcast(this, CreditsAmount, -delta);
+	OnCreditsChanged.Broadcast(this, CreditsAmount, delta);
 
 	UE_LOG(LogTemp, Log, TEXT("Current credits amount: %i"), CreditsAmount);
 
 	return true;
+}
+
+void ASPlayerState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(ASPlayerState, CreditsAmount);
 }

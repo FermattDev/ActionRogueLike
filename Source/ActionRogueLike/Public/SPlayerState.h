@@ -14,10 +14,13 @@ class ACTIONROGUELIKE_API ASPlayerState : public APlayerState
 	GENERATED_BODY()
 	
 protected:
-	UPROPERTY(VisibleAnywhere, Category = "Currency")
+	UPROPERTY(Replicated, VisibleAnywhere, Category = "Currency")
 	int CreditsAmount;
 
 public:
+	UFUNCTION(NetMulticast, Reliable)
+	void MulticastCreditsChanged(AActor* CreditsInstigator, float NewCredits, float Delta);
+
 	UFUNCTION(BlueprintCallable)
 	int GetCreditAmount();
 

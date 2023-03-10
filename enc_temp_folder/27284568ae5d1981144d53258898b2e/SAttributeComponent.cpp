@@ -60,7 +60,7 @@ bool USAttributeComponent::ApplyHealthChange(AActor* InstigatorActor, float Delt
 		}
 	}
 
-	return true;
+	return Health == NewHealth;
 }
 
 bool USAttributeComponent::CheckRageCost(AActor* InstigatorActor, float Delta)

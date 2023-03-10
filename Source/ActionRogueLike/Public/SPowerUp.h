@@ -22,6 +22,12 @@ public:
 
 protected:
 
+	UPROPERTY(ReplicatedUsing = "OnRep_PowerUpTriggered", BlueprintReadOnly)
+	bool bPowerUpTriggered;
+
+	UFUNCTION()
+	void OnRep_PowerUpTriggered();
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	class USceneComponent* SceneComponent;
 
