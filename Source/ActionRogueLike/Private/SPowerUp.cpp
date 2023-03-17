@@ -40,6 +40,11 @@ void ASPowerUp::Interact_Implementation(APawn* InstigatorPawn)
 
 }
 
+FText ASPowerUp::GetInteractText_Implementation(APawn* InstigatorPawn)
+{
+	return FText::GetEmpty();
+}
+
 void ASPowerUp::ShowPowerup()
 {
 	bPowerUpTriggered = false;

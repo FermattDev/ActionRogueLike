@@ -19,6 +19,9 @@ public:
 	void StartAction_Implementation(AActor* Instigator) override;
 	void StopAction_Implementation(AActor* Instigator) override;
 
+	UFUNCTION(BlueprintCallable, Category = "Action")
+	float GetTimeRemaining() const;
+
 	USActionEffect();
 	
 protected:

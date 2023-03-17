@@ -14,11 +14,15 @@ class ACTIONROGUELIKE_API ASItemChest : public AActor, public ISGameplayInterfac
 {
 	GENERATED_BODY()
 		
+public:
+
 	void Interact_Implementation(APawn* InstigatorPawn);
+
+	void OnActorLoaded_Implementation();
 
 protected:
 
-	UPROPERTY(ReplicatedUsing="OnRep_LidOpened", BlueprintReadOnly)
+	UPROPERTY(ReplicatedUsing="OnRep_LidOpened", BlueprintReadOnly, SaveGame)
 	bool bLidOpened;
 
 	UFUNCTION()

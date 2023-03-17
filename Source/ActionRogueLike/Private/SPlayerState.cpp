@@ -3,6 +3,7 @@
 
 #include "SPlayerState.h"
 #include <Net/UnrealNetwork.h>
+#include "SSaveGame.h"
 
 void ASPlayerState::MulticastCreditsChanged_Implementation(AActor* CreditsInstigator, float NewCredits, float Delta)
 {
@@ -29,6 +30,22 @@ bool ASPlayerState::ApplyCreditValue(int delta)
 	UE_LOG(LogTemp, Log, TEXT("Current credits amount: %i"), CreditsAmount);
 
 	return true;
+}
+
+void ASPlayerState::SavePlayerState_Implementation(USSaveGame* SaveObject)
+{
+	if (SaveObject)
+	{
+		SaveObject->Credits = CreditsAmount;
+	}
+}
+
+void ASPlayerState::LoadPlayerState_Implementation(USSaveGame* SaveObject)
+{
+	if (SaveObject)
+	{
+		CreditsAmount = SaveObject->Credits;
+	}
 }
 
 void ASPlayerState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
